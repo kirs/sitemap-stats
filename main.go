@@ -38,9 +38,8 @@ func CheckUrl(url string) {
 		log.Fatal(err)
 	}
 
-  fmt.Println(url, resp.Status)
   if resp.StatusCode != 200 {
-    // alarm
+    fmt.Println(url, resp.Status)
   }
 }
 
