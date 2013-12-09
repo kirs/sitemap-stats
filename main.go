@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -22,14 +23,19 @@ func Download(url string) []byte {
 
 var counter int
 
+var request_stats = map[int]int{}
+
 func CheckSitemap(url string) {
+	fmt.Printf("Parsing %s\n", url)
 	list := GetSitemap(url)
 	for _, item := range list.Items {
     CheckUrl(item.Loc)
 		counter++
 	}
 
-	fmt.Println(counter)
+	fmt.Printf("Total urls: %d\n", counter)
+
+	PrintCodeStats()
 }
 
 func CheckUrl(url string) {
@@ -38,15 +44,31 @@ func CheckUrl(url string) {
 		log.Fatal(err)
 	}
 
-  if resp.StatusCode != 200 {
-    fmt.Println(url, resp.Status)
-  }
+  fmt.Println(url, resp.Status)
+  request_stats[resp.StatusCode]++
+}
+
+func PrintCodeStats() {
+	for code, count := range request_stats {
+		fmt.Printf("%d: %d\n", code, count)
+	}
+}
+
+var sitemap_url string
+func init() {
+	flag.StringVar(&sitemap_url, "url", "", "sitemap url")
 }
 
 func main() {
-	url := "http://www.idinaidi.ru/sitemap.xml"
+	flag.Parse()
 
-	list := GetSitemapIndex(url)
+	if len(sitemap_url) == 0 {
+		log.Fatal("Sitemap url is empty")
+	}
+
+	fmt.Printf("Parsing %s started\n", sitemap_url)
+
+	list := GetSitemapIndex(sitemap_url)
 
 	for _, item := range list.Items {
 		index := GetSitemapIndex(item.Loc)
@@ -59,4 +81,6 @@ func main() {
 			CheckSitemap(item.Loc)
 		}
 	}
+
+	PrintCodeStats()
 }
