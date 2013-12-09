@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func Download(url string) []byte {
@@ -39,6 +40,8 @@ func CheckSitemap(url string) {
 }
 
 func CheckUrl(url string) {
+	url = strings.TrimSpace(url)
+
 	resp, err := http.Head(url)
 	if err != nil {
 		log.Fatal(err)
@@ -49,6 +52,7 @@ func CheckUrl(url string) {
 }
 
 func PrintCodeStats() {
+	fmt.Println("Stats by code:")
 	for code, count := range request_stats {
 		fmt.Printf("%d: %d\n", code, count)
 	}
