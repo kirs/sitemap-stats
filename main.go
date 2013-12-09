@@ -70,6 +70,11 @@ func main() {
 
 	list := GetSitemapIndex(sitemap_url)
 
+	if len(list.Items) == 0 {
+		CheckSitemap(sitemap_url)
+		return
+	}
+
 	for _, item := range list.Items {
 		index := GetSitemapIndex(item.Loc)
 
